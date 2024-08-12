@@ -4,6 +4,8 @@ import { SafeAreaView} from "react-native"
 import WebView from "react-native-webview"
 import RouteNames, {RootStackParamList} from "../routes"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { useContext } from "react"
+import { WebViewContext } from "../components/WebViewProvider"
 
 
 
@@ -16,8 +18,16 @@ const styles = StyleSheet.create({
 })
 
 const HomeScreen = ( {navigation}: Props) => {
+    const context = useContext(WebViewContext)
+
     return <SafeAreaView style={styles.safearea}>
-        <WebView source={{uri: 'https://m.naver.com'}} 
+        <WebView 
+        ref={(ref) => {
+            if(ref != null) {
+                context?.addWebView(ref)
+            }
+        }}
+        source={{uri: 'https://m.naver.com'}} 
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         onShouldStartLoadWithRequest={request => {
@@ -34,7 +44,6 @@ const HomeScreen = ( {navigation}: Props) => {
                 return false
             }
             return true
-
         }}
         />
 

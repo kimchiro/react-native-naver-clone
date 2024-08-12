@@ -1,9 +1,10 @@
-import { SafeAreaView, StyleSheet, View, Text, Animated, TouchableOpacity } from "react-native"
+import { SafeAreaView, StyleSheet, View, Text, Animated, TouchableOpacity, Share } from "react-native"
 import WebView from "react-native-webview"
 import {RootStackParamList} from "../routes"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { useMemo, useRef, useState } from "react"
+import { useContext, useMemo, useRef, useState } from "react"
 import  MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
+import { WebViewContext } from "../components/WebViewProvider"
 
 
 
@@ -73,13 +74,14 @@ const NavButton = ({iconName, disabled, onPress}: {
 }
 
 const BrowserScreen = ({route, navigation}: Props) => {
+    const context = useContext(WebViewContext)
     const {initialUrl} = route.params;
     const [url, setUrl] = useState(initialUrl)
     const urlTitle = useMemo(() => url.replace('https://', '').split('/')[0], [url])
 
     const progerssAnim = useRef(new Animated.Value(0)).current
 
-    const webviewRef = useRef<WebView>(null);
+    const webviewRef = useRef<WebView | null>(null);
     const [canGoBack, setCanGoBack] = useState(false)
     const [canGoForward, setCanGoForword] = useState(false)
 
@@ -96,7 +98,12 @@ const BrowserScreen = ({route, navigation}: Props) => {
                 })}]}/>
             </View>
             <WebView 
-                ref={webviewRef}
+                ref={(ref)=> {
+                    webviewRef.current = ref
+                    if(ref != null){
+                        context?.addWebView(ref)
+                    }
+                }}
                 source={{uri: initialUrl}}
                 onNavigationStateChange={(event) => {
                     setCanGoBack(event.canGoBack)
@@ -131,8 +138,15 @@ const BrowserScreen = ({route, navigation}: Props) => {
                         webviewRef.current?.goForward()
                     }}
                     />
-                    <NavButton iconName="refresh" onPress={()=> {
+                    <NavButton 
+                    iconName="refresh" 
+                    onPress={()=> {
                         webviewRef.current?.reload()
+                    }}/>
+                       <NavButton 
+                       iconName="share-outline" 
+                       onPress={()=> {
+                        Share.share({ message: url })
                     }}/>
                 </View>
     </SafeAreaView>

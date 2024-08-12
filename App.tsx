@@ -13,6 +13,9 @@ import  MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunity
 import HomeScreen from './screens/HomeScreen';
 import ShoppingScreen from './screens/ShoppingScreen';
 import BrowserScreen from './screens/BrowserScreen';
+import LoginButton from './components/LoginButton';
+import LoginScreen from './screens/LoginScreen';
+import { WebViewProvider } from './components/WebViewProvider';
 
 
 
@@ -58,19 +61,40 @@ const HomeTab = () => {
 
 export default function App() {
   return (
+    <WebViewProvider>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen 
         name={RouteNames.HOME_TAB}
         component={HomeTab}
-        options={{headerShown: false}}
+        options={{
+          headerShown: true,
+          title: '',
+          headerStyle: {
+            backgroundColor: 'black'
+          },
+          headerRight: LoginButton,
+        }}
         />
       <Stack.Screen 
       name={RouteNames.BROWSER} 
       component={BrowserScreen} 
       options={{headerShown: false}}
       />
+       <Stack.Screen 
+      name={RouteNames.LOGIN} 
+      component={LoginScreen} 
+       options={{
+          headerShown: true,
+          title: '',
+          headerStyle: {
+            backgroundColor: 'black'
+          },
+          headerTintColor: 'white'
+        }}
+      />
       </Stack.Navigator>
       </NavigationContainer>
+      </WebViewProvider>
   );
 }
