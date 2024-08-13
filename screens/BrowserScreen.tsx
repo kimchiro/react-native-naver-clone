@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { useContext, useMemo, useRef, useState } from "react"
 import  MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import { WebViewContext } from "../components/WebViewProvider"
+import { useBackHandler } from "@react-native-community/hooks"
 
 
 
@@ -56,6 +57,21 @@ const styles = StyleSheet.create({
     }
 
 })
+ 
+//웹뷰 핀치 줌인 줌 아웃 기능막아놓기
+const DISABLE_PINCH_ZOOM = `(function() {
+    const meta = document.createElement('meta');
+    meta.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+    meta.setAttribute('name', 'viewport');
+    document.getElementsByTagName('head')[0].appendChild(meta);
+
+    document.body.style.['touch-action'] = 'none';
+    document.body.style.['user-select'] = 'none';
+    document.body.style.['-webkit-user-select'] = 'none';
+
+})();`;
+
+
 
 const NavButton = ({iconName, disabled, onPress}: {
     iconName: string;
@@ -84,6 +100,16 @@ const BrowserScreen = ({route, navigation}: Props) => {
     const webviewRef = useRef<WebView | null>(null);
     const [canGoBack, setCanGoBack] = useState(false)
     const [canGoForward, setCanGoForword] = useState(false)
+
+
+    //android default menu backbutton custom
+    useBackHandler(()=> {
+        if (canGoBack) {
+            webviewRef.current?.goBack()
+            return true // default
+        }
+        return false
+    })
 
 
     return (
@@ -116,7 +142,13 @@ const BrowserScreen = ({route, navigation}: Props) => {
                 onLoadEnd={() => {
                     progerssAnim.setValue(0)
                 }}
+                injectedJavaScript={DISABLE_PINCH_ZOOM}
+                onMessage={() => {}}
+                allowsLinkPreview={false}
                 />
+
+
+
                 <View style={styles.navigator}>
                     <TouchableOpacity style={styles.button} onPress={() => {
                         navigation.goBack();
